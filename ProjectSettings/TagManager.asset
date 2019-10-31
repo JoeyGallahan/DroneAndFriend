@@ -25,6 +25,7 @@ TagManager:
   - EndRestartButton
   - EndReturnButton
   - PauseMenu
+  - EndNextLevelButton
   layers:
   - Default
   - TransparentFX

@@ -21,6 +21,7 @@ public class LevelController : MonoBehaviour
     GameObject endScoreUI;
     TextMeshProUGUI endStarsText;
     TextMeshProUGUI endTimeText;
+    Button nextLevelButton;
     Button restartLevelButton;
     Button returnButton;
     //MainMenu
@@ -64,6 +65,7 @@ public class LevelController : MonoBehaviour
         endScoreUI = GameObject.FindGameObjectWithTag("EndScore");
         endStarsText = GameObject.FindGameObjectWithTag("EndStars").GetComponent<TextMeshProUGUI>();
         endTimeText = GameObject.FindGameObjectWithTag("EndTime").GetComponent<TextMeshProUGUI>();
+        nextLevelButton = GameObject.FindGameObjectWithTag("EndNextLevelButton").GetComponent<Button>();
         restartLevelButton = GameObject.FindGameObjectWithTag("EndRestartButton").GetComponent<Button>();
         returnButton = GameObject.FindGameObjectWithTag("EndReturnButton").GetComponent<Button>();
 
@@ -85,6 +87,7 @@ public class LevelController : MonoBehaviour
         endScoreUI.SetActive(false);
         pauseMenu.SetActive(false);
 
+        nextLevelButton.onClick.AddListener(LoadNextLevel);
         restartLevelButton.onClick.AddListener(RestartLevel);
         returnButton.onClick.AddListener(ReturnToLevelSelect);
         
@@ -282,7 +285,16 @@ public class LevelController : MonoBehaviour
             if (currentLevel.starsEarned == 3)
             {
                 levelDB.levels[levelIndex + 1].unlocked = true;
+                nextLevelButton.gameObject.SetActive(true);
             }
+            else
+            {
+                nextLevelButton.gameObject.SetActive(false);
+            }
+        }
+        else
+        {
+            nextLevelButton.gameObject.SetActive(false);
         }
 
     }
@@ -292,6 +304,27 @@ public class LevelController : MonoBehaviour
         timeInLevel += Time.deltaTime;
 
         hudTimeText.text = timeInLevel.ToString("F2");
+    }
+
+    private void LoadNextLevel()
+    {
+        int levelIndex = levelDB.levels.IndexOf(currentLevel);
+
+        if (levelIndex < levelDB.levels.Count - 1)
+        {
+            if (levelDB.levels[levelIndex + 1].unlocked)
+            {
+                timeInLevel = 0.0f; //reset the time
+
+                endScoreUI.SetActive(false); //disables the end score screen
+                currentLevel.level.SetActive(false); //disables the current level
+
+                paused = false; //you are no longer paused
+                levelActive = true; //the level is reactivated
+
+                InitNewLevel(levelDB.levels[levelIndex + 1].level);
+            }
+        }
     }
 
     private void RestartLevel()

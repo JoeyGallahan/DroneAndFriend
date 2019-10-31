@@ -5,7 +5,8 @@ using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
-    Button levelsMenuButton;
+    Button playButton;
+    Button quitButton;
     Button backButton;
     Button[] allLevelSelectionButtons = new Button[12];
     
@@ -19,15 +20,17 @@ public class MainMenu : MonoBehaviour
     private void Awake()
     {
         //Init all the buttons in the menus
-        levelsMenuButton = GameObject.Find("Levels Button").GetComponent<Button>();
+        playButton = GameObject.Find("Play Button").GetComponent<Button>();
         backButton = GameObject.Find("Back Button").GetComponent<Button>();
+        quitButton = GameObject.Find("Quit Button").GetComponent<Button>();
         levelObjects = GameObject.FindGameObjectsWithTag("LevelButton");
         levelDB = GameObject.FindGameObjectWithTag("GameController").GetComponent<LevelDatabase>();
 
         InitLevelButtons();
 
-        levelsMenuButton.onClick.AddListener(OpenLevels);
+        playButton.onClick.AddListener(OpenLevels);
         backButton.onClick.AddListener(BackToMainMenu);
+        quitButton.onClick.AddListener(QuitGame);
 
         //Get the level selection menu and the main menu so we can activate/deactivate as needed
         levelCanvas = GameObject.FindGameObjectWithTag("LevelList");
@@ -137,5 +140,10 @@ public class MainMenu : MonoBehaviour
         ActivateLevelSelectMenu(false);
 
         levelController.InitNewLevel(level);
+    }
+
+    void QuitGame()
+    {
+        Application.Quit();
     }
 }
