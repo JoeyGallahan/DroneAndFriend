@@ -14,6 +14,8 @@ public class RopeController : MonoBehaviour
 
     Vector2 savedVelocity;
 
+    [SerializeField] float ropeZOffset = 0.0f;
+
     private void Awake()
     {
         drone = GameObject.FindGameObjectWithTag("Drone").GetComponent<DroneController>();
@@ -76,8 +78,15 @@ public class RopeController : MonoBehaviour
         if (rope && usingRope)
         {
             rope.connectedAnchor = drone.transform.position;
-            lineRenderer.SetPosition(0, transform.position);
-            lineRenderer.SetPosition(1, rope.connectedAnchor);
+
+            Vector3 pos1 = transform.position;
+            pos1.z = ropeZOffset;
+
+            Vector3 pos2 = rope.connectedAnchor;
+            pos2.z = ropeZOffset;
+
+            lineRenderer.SetPosition(0, pos1);
+            lineRenderer.SetPosition(1, pos2);
         }
     }
 

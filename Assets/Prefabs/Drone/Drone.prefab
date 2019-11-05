@@ -156,7 +156,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3289341630123794739}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -18.65, y: -7.11, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 3294272617023223568}
@@ -207,7 +207,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.6, y: 0.3}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -229,7 +229,7 @@ MonoBehaviour:
   keyCodeDown: 115
   keyCodeRight: 100
   keyCodeLeft: 97
-  maxMovementSpeed: 0.08
+  maxMovementSpeed: 0.25
   maxDistance: 10
   idleMoveDistance: 0.2
   idleMoveSpeed: 1
@@ -296,7 +296,6 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
-  particles: {fileID: 3393987084492488024}
 --- !u!61 &3289341630123794743
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -315,7 +314,7 @@ BoxCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 0.6, y: 0.3}
-    newSize: {x: 1, y: 1}
+    newSize: {x: 0.6, y: 0.3}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
@@ -436,11 +435,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 198100719057022332, guid: a3553fd250eb92d4091bebde350c6739,
         type: 3}
-      propertyPath: EmissionModule.enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 198100719057022332, guid: a3553fd250eb92d4091bebde350c6739,
-        type: 3}
       propertyPath: prewarm
       value: 1
       objectReference: {fileID: 0}
@@ -449,12 +443,6 @@ PrefabInstance:
 --- !u!4 &3294272617023223568 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4940884351362868, guid: a3553fd250eb92d4091bebde350c6739,
-    type: 3}
-  m_PrefabInstance: {fileID: 3289341628276576292}
-  m_PrefabAsset: {fileID: 0}
---- !u!198 &3393987084492488024 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 198100719057022332, guid: a3553fd250eb92d4091bebde350c6739,
     type: 3}
   m_PrefabInstance: {fileID: 3289341628276576292}
   m_PrefabAsset: {fileID: 0}

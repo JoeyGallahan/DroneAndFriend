@@ -15,7 +15,9 @@ public class MainMenu : MonoBehaviour
     GameObject[] levelObjects;
 
     GameObject levelCanvas;
-    GameObject mainMenuCanvas;       
+    GameObject mainMenuCanvas;
+
+    [SerializeField] Texture2D defaultCursor, hoverCursor;
 
     private void Awake()
     {
@@ -145,5 +147,14 @@ public class MainMenu : MonoBehaviour
     void QuitGame()
     {
         Application.Quit();
+    }
+
+    public void MouseHover()
+    {
+        //Cursor.SetCursor(defaultCursor, Vector2.zero, CursorMode.Auto);
+    }
+    public void MouseEndHover()
+    {
+        //Cursor.SetCursor(hoverCursor, Vector2.zero, CursorMode.Auto);
     }
 }
