@@ -4,45 +4,44 @@ using UnityEngine;
 
 public class DroneController : MonoBehaviour
 {
-    [SerializeField] KeyCode keyCodeUp = KeyCode.W;
-    [SerializeField] KeyCode keyCodeDown = KeyCode.S;
-    [SerializeField] KeyCode keyCodeRight = KeyCode.D;
-    [SerializeField] KeyCode keyCodeLeft = KeyCode.A;
+    //Input Keys
+    KeyCode keyCodeUp = KeyCode.W;
+    KeyCode keyCodeDown = KeyCode.S;
+    KeyCode keyCodeRight = KeyCode.D;
+    KeyCode keyCodeLeft = KeyCode.A;
 
+    //Movement
     [SerializeField] float maxMovementSpeed = 5.0f;
-    [SerializeField] float maxDistance;
+    bool[] movementDirections = { false, false, false, false }; //up, down, right, left
+    bool canMove = false;
 
+    //Idling
     [SerializeField] float idleMoveDistance;
     [SerializeField] float idleMoveSpeed;
-    [SerializeField] bool isIdle = true;
-    [SerializeField] bool goingDownIdle = false;
+    bool isIdle = true;
+    bool goingDownIdle = false;
     float idleStartTime = 0.0f;
     Vector3 idleStartPos;
     Vector3 idleEndPos;
 
-
-    bool withinDistance = true;
-    //[SerializeField] float acceleration = 0.5f;
-
-    [SerializeField] bool[] movementDirections = { false, false, false, false }; //up, down, right, left
-
+    //Player
     GameObject player;
+
+    //Colors
+    [SerializeField] float maxDistance;
+    bool withinDistance = true;
+    SpriteRenderer droneColor;
+    TrailRenderer trailColor;
     [SerializeField] Color closeColor;
     [SerializeField] Gradient closeColorGradient;
     [SerializeField] Color farColor;
     [SerializeField] Gradient farColorGradient;
-
-    bool canMove = true;
     
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player");
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+        droneColor = this.gameObject.GetComponent<SpriteRenderer>();
+        trailColor = gameObject.GetComponentInChildren<TrailRenderer>();
     }
 
     // Update is called once per frame
@@ -52,17 +51,13 @@ public class DroneController : MonoBehaviour
         {
             GetInput();
             IdleAnimations();
-        }
-    }
-    private void FixedUpdate()
-    {
-        if (canMove)
-        {
+
             UpdateDronePosition();
             UpdateDroneColor();
         }
     }
 
+    //Gets the vertical and horizontal inputs that the drone should react to
     void GetInput()
     {
         if (Input.GetKey(keyCodeUp))
@@ -79,6 +74,7 @@ public class DroneController : MonoBehaviour
         }
         else
         {
+            //If you don't press up or down then you don't move vertically at all
             movementDirections[0] = false;
             movementDirections[1] = false;
         }
@@ -97,36 +93,40 @@ public class DroneController : MonoBehaviour
         }
         else
         {
+            //If you don't press left or right then you don't move horizontally at all
             movementDirections[2] = false;
             movementDirections[3] = false;
         }
     }
 
+    //Updates the drone position based on the direction the drone is moving
     public void UpdateDronePosition()
     {
         Vector3 newPosition = transform.position;
 
-
+        //Vertical movement
         if (movementDirections[0]) //if moving up
         {
-            newPosition.y += maxMovementSpeed;
+            newPosition.y += (maxMovementSpeed * Time.deltaTime);
         }
         else if (movementDirections[1]) //if moving down
         {
-            newPosition.y -= maxMovementSpeed;
+            newPosition.y -= (maxMovementSpeed * Time.deltaTime);
         }
 
+        //Horizontal movement
         if (movementDirections[2]) //if moving right
         {
-            newPosition.x += maxMovementSpeed;
+            newPosition.x += (maxMovementSpeed * Time.deltaTime);
         }
         else if (movementDirections[3]) //if moving left
         {
-            newPosition.x -= maxMovementSpeed;
+            newPosition.x -= (maxMovementSpeed * Time.deltaTime);
         }
 
-        transform.position = newPosition;
+        transform.position = newPosition; //update the position
 
+        //Check to see if the drone is out of player range
         if (Vector3.Distance(transform.position, player.transform.position) > maxDistance)
         {
             withinDistance = false;
@@ -137,44 +137,48 @@ public class DroneController : MonoBehaviour
         }
     }
 
+    //Updates the color of the drone based on the distance to the player
     void UpdateDroneColor()
     {
-        if (!withinDistance)
+        if (!withinDistance) //If you're far away from the player
         {
-            gameObject.GetComponent<SpriteRenderer>().color = farColor;
-
-            gameObject.GetComponentInChildren<TrailRenderer>().colorGradient = farColorGradient;
+            droneColor.color = farColor; //Change the color of the drone to the preset
+            trailColor.colorGradient = farColorGradient; //Change the color of the drone's trail to the preset
         }
         else
         {
-            gameObject.GetComponent<SpriteRenderer>().color = closeColor;
-            gameObject.GetComponentInChildren<TrailRenderer>().colorGradient = closeColorGradient;
+            droneColor.color = closeColor; //Change the color of the drone to the preset
+            trailColor.colorGradient = closeColorGradient; //Change the color of the drone's trail to the preset
         }
     }
     
     public bool WithinRopeDistance() { return withinDistance; }
 
+    //Just a simple animation that makes the drone look like it's hovering a bit when you're not moving
     void IdleAnimations()
     {
+        //If you weren't idle before, you are now
         bool before = isIdle;
         isIdle = true;
+
         for(int i = 0; i < 4; i++)
         {
-            if(movementDirections[i])
+            if(movementDirections[i]) //If you made any movements at all, you're not idle
             {
-                isIdle = false;
-                break;
+                isIdle = false; //switch it back
+                break; //don't need to go any further. we found what we're looking for.
             }
         }
 
+        //If you just now became idle
         if(isIdle && !before)
         {
-            InitIdle();
+            InitIdle(); //Initialize the idle fields
         }
 
-        if (isIdle)
+        if (isIdle) //If you are idle but this is not the first frame
         {            
-            float timePassed = Time.time - idleStartTime;
+            float timePassed = Time.time - idleStartTime; 
             float distanceCovered = timePassed * idleMoveSpeed;
 
             transform.position = Vector3.Lerp(idleStartPos, idleEndPos, distanceCovered);
@@ -186,6 +190,7 @@ public class DroneController : MonoBehaviour
         }
     }
 
+    //Initializes the start and end positions of the 
     void InitIdle()
     {
         idleStartPos = transform.position;
@@ -193,32 +198,25 @@ public class DroneController : MonoBehaviour
         idleEndPos.y += idleMoveDistance;
 
         idleStartTime = Time.time;
-
-        //Debug.Log("Start: " + idleStartPos + ", End: " + idleEndPos);
     }
 
+    //Switch directions for the idle
+    //He hovers up to the end position and then we swap so he goes back down to the start 
     void SwapIdleDirection()
     {
         idleEndPos = idleStartPos;
         idleStartPos = transform.position;
-        idleStartTime = Time.time;
 
-        //Debug.Log("SWAP! Start: " + idleStartPos + ", End: " + idleEndPos);
+        idleStartTime = Time.time; //reset the time we started going idle
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.tag.Equals("ImpassableForPlayer"))
-        {
-            Physics2D.IgnoreCollision(GetComponent<BoxCollider2D>(), collision.gameObject.GetComponent<BoxCollider2D>());
-        }
-    }
-
+    //Updates whether or not the drone can move (used for when the game is paused)
     public void CanMove(bool maybe)
     {
         canMove = maybe;
 
-        idleStartPos = transform.position;
+        //Reset the idle positions so that it doesn't get wonky
+        idleStartPos = transform.position; 
         idleEndPos = transform.position;
     }
 

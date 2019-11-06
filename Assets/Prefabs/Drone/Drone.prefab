@@ -140,7 +140,6 @@ GameObject:
   - component: {fileID: 3289341630123794738}
   - component: {fileID: 3289341630123794743}
   - component: {fileID: 3289341630123794742}
-  - component: {fileID: 3289341630123794729}
   m_Layer: 0
   m_Name: Drone
   m_TagString: Drone
@@ -225,17 +224,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45e03001e1c50ac46bc985b83a4c09b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  keyCodeUp: 119
-  keyCodeDown: 115
-  keyCodeRight: 100
-  keyCodeLeft: 97
-  maxMovementSpeed: 0.25
-  maxDistance: 10
-  idleMoveDistance: 0.2
+  maxMovementSpeed: 15
+  idleMoveDistance: 0.5
   idleMoveSpeed: 1
-  isIdle: 0
-  goingDownIdle: 0
-  movementDirections: 00000000
+  maxDistance: 10
   closeColor: {r: 0.59998846, g: 1, b: 0.5518868, a: 1}
   closeColorGradient:
     serializedVersion: 2
@@ -343,25 +335,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!95 &3289341630123794729
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3289341630123794739}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1001 &3289341628276576292
 PrefabInstance:
   m_ObjectHideFlags: 0

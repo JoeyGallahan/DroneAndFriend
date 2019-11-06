@@ -121,11 +121,7 @@ public class LevelController : MonoBehaviour
                 break;
             }
         }
-
-        //Activates the player, drone, and level that we are loading into
-        player.SetActive(true);
-        drone.SetActive(true);
-
+        
         currentLevel.level.SetActive(true);
 
         startingPlatform = GameObject.FindGameObjectWithTag("StartingPlatform"); //grab the starting platform so that we know where to put the player & drone
@@ -153,6 +149,10 @@ public class LevelController : MonoBehaviour
             player.GetComponent<RopeController>().CanUseRope(true);
         }
         player.GetComponent<RopeController>().ResetVelocity(); //makes it so they don't zoom away during a restart
+
+        //Activates the player, drone, and level that we are loading into
+        player.SetActive(true);
+        drone.SetActive(true);
 
         HUD.SetActive(true); //activate the HUD
     }

@@ -24,7 +24,7 @@ public class LevelMenu : MonoBehaviour
 
         levelCanvas = GameObject.FindGameObjectWithTag("LevelList");
         
-        InitLevelButtons();
+        InitLevelButtons(); //Do the onclick listeners
 
         //Get the level controller so we can load and initialize the levels
         levelController = GameObject.FindGameObjectWithTag("GameController").GetComponent<LevelController>();
@@ -35,8 +35,7 @@ public class LevelMenu : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //Disable the level select menu. We start from the main menu
-        ActivateLevelSelectMenu(false);
+        ActivateLevelSelectMenu(false); //Disable the level select menu. We start from the main menu
     }
 
     //Sets up all the onClick listeners for each level select button
@@ -66,12 +65,16 @@ public class LevelMenu : MonoBehaviour
             if (levelDB.levels[i].unlocked) //If this level has been unlocked
             {
                 Button button = levelDB.levels[i].button.GetComponent<Button>(); //Gets this level's button in the level select menu 
+                Image lockImage = GetLockImage(button); //Gets the image of the lock for the level
+                if (lockImage) //If it exists (will exist for every level except the first)
+                {
+                    lockImage.enabled = false; //Disable it. It's unlocked
+                }
 
                 button.gameObject.SetActive(true); //Make the button show in the menu
 
                 string fastestTime = levelDB.levels[i].fastestLevelTime.ToString("F2") + "s"; //Converts the fastest time into a string and makes it only 2-decimal places so that it doesn't get too long.
                 levelDB.levels[i].fastestTimeText.SetText(fastestTime); //Sets the text of this button to show your fastest time earned
-
 
                 int starsEarned = levelDB.levels[i].starsEarned; //Get the number of stars earned
                 for (int s = 0; s < starsEarned; s++)
@@ -112,6 +115,25 @@ public class LevelMenu : MonoBehaviour
         ActivateLevelSelectMenu(false);
 
         levelController.InitNewLevel(level);
+    }
+
+    //Gets the image of the lock based off of the button
+    //Basically goes through each parent until it finds the one with the tag we're looking for
+    Image GetLockImage(Button btn)
+    {
+        Transform t = btn.transform;
+
+        while(t.parent != null)
+        {
+            if (t.parent.tag.Equals("LevelWrapper"))
+            {
+                return t.parent.gameObject.GetComponent<Image>();
+            }
+
+            t = t.parent.transform;
+        }
+
+        return null;
     }
 
 }

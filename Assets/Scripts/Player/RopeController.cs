@@ -22,11 +22,6 @@ public class RopeController : MonoBehaviour
         rb = GameObject.FindGameObjectWithTag("Player").GetComponent<Rigidbody2D>();
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
-
     // Update is called once per frame
     void Update()
     {
@@ -37,7 +32,7 @@ public class RopeController : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
+    private void LateUpdate()
     {
         CheckForInputRelease();
     }
@@ -99,7 +94,6 @@ public class RopeController : MonoBehaviour
             savedVelocity = rb.velocity;
             rb.isKinematic = true;
             rb.velocity = new Vector2(0.0f,0.0f);
-            Debug.Log("Hello");
         }
         else if (maybe)
         {
@@ -107,8 +101,6 @@ public class RopeController : MonoBehaviour
             rb.AddForce(savedVelocity, ForceMode2D.Impulse);
 
             savedVelocity = new Vector2(0.0f, 0.0f);
-
-            Debug.Log("Hey there");
         }
     }
 
