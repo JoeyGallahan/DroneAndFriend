@@ -12,24 +12,17 @@ public class LevelController : MonoBehaviour
     GameObject startingPlatform;
     GameObject endingPlatform;
     Camera cam;
+    GameObject gameController;
 
-    //----UI things----//
     //HUD
     GameObject HUD;
     TextMeshProUGUI hudTimeText;
-    //End-level scoring
-    GameObject endScoreUI;
-    TextMeshProUGUI endStarsText;
-    TextMeshProUGUI endTimeText;
-    Button nextLevelButton;
-    Button restartLevelButton;
-    Button returnButton;
-    //MainMenu
-    MainMenu mainMenu;
-    //PauseMenu
-    GameObject pauseMenu;
-    Button pauseRestartButton;
-    Button pauseReturnButton;
+
+    //Menus
+    MainMenu mainMenu; //MainMenu   
+    LevelMenu levelMenu; //LevelSelectMenu
+    PauseMenu pauseMenu; //PauseMenu
+    EndMenu endMenu; //End level menu
 
     //Colliders
     [SerializeField] BoxCollider2D endingPlatformCollider;
@@ -48,7 +41,6 @@ public class LevelController : MonoBehaviour
     Vector3 droneStartingOffset = new Vector3(0.5f, 2.0f);
 
     float timeInLevel = 0.0f;
-    bool paused = false;
 
     private void Awake()
     {
@@ -60,20 +52,14 @@ public class LevelController : MonoBehaviour
         HUD = GameObject.FindGameObjectWithTag("HUD");
         hudTimeText = GameObject.FindGameObjectWithTag("TimeText").GetComponent<TextMeshProUGUI>();
 
-        levelDB = GameObject.FindGameObjectWithTag("GameController").GetComponent<LevelDatabase>();
+        gameController = GameObject.FindGameObjectWithTag("GameController");
 
-        endScoreUI = GameObject.FindGameObjectWithTag("EndScore");
-        endStarsText = GameObject.FindGameObjectWithTag("EndStars").GetComponent<TextMeshProUGUI>();
-        endTimeText = GameObject.FindGameObjectWithTag("EndTime").GetComponent<TextMeshProUGUI>();
-        nextLevelButton = GameObject.FindGameObjectWithTag("EndNextLevelButton").GetComponent<Button>();
-        restartLevelButton = GameObject.FindGameObjectWithTag("EndRestartButton").GetComponent<Button>();
-        returnButton = GameObject.FindGameObjectWithTag("EndReturnButton").GetComponent<Button>();
-
-        pauseMenu = GameObject.FindGameObjectWithTag("PauseMenu");
-        pauseRestartButton = GameObject.FindGameObjectWithTag("PauseRestartButton").GetComponent<Button>();
-        pauseReturnButton = GameObject.FindGameObjectWithTag("PauseReturnButton").GetComponent<Button>();
-
-        mainMenu = GameObject.FindGameObjectWithTag("GameController").GetComponent<MainMenu>();
+        levelDB = gameController.GetComponent<LevelDatabase>();
+        
+        mainMenu = gameController.GetComponent<MainMenu>();
+        levelMenu = gameController.GetComponent<LevelMenu>();
+        pauseMenu = gameController.GetComponent<PauseMenu>();
+        endMenu = gameController.GetComponent<EndMenu>();
 
         cam = Camera.main;
     }
@@ -84,15 +70,8 @@ public class LevelController : MonoBehaviour
         drone.SetActive(false);
         player.SetActive(false);
         HUD.SetActive(false);
-        endScoreUI.SetActive(false);
-        pauseMenu.SetActive(false);
-
-        nextLevelButton.onClick.AddListener(LoadNextLevel);
-        restartLevelButton.onClick.AddListener(RestartLevel);
-        returnButton.onClick.AddListener(ReturnToLevelSelect);
-        
-        pauseRestartButton.onClick.AddListener(RestartLevel);
-        pauseReturnButton.onClick.AddListener(ReturnToLevelSelect);
+        endMenu.SetActive(false);
+        pauseMenu.TogglePause(false);        
     }
 
     private void Update()
@@ -100,18 +79,17 @@ public class LevelController : MonoBehaviour
         //If you hit escape
         if(Input.GetKeyDown(KeyCode.Escape))
         {
-            //If you are already paused and not in the end-level sequence or in the main menus or whatever
-            if(paused && levelActive)
+            //If you are already pauseMenu.IsPaused() and not in the end-level sequence or in the main menus or whatever
+            if(pauseMenu.IsPaused() && levelActive)
             {
-                pauseMenu.SetActive(false); //close the pause menu
-                paused = false; //youre no longer paused
+                pauseMenu.TogglePause(false); //close the pause menu
+                pauseMenu.TogglePause(false); //youre no longer pauseMenu.IsPaused()
                 drone.GetComponent<DroneController>().CanMove(true); //the drone can move now
                 player.GetComponent<RopeController>().CanUseRope(true); //the player can use the rope again
             }
-            else if (!paused && levelActive) //If you're not already paused, but are currently in game
+            else if (!pauseMenu.IsPaused() && levelActive) //If you're not already pauseMenu.IsPaused(), but are currently in game
             {
-                pauseMenu.SetActive(true); //open the pause menu
-                paused = true; //the game is now paused
+                pauseMenu.TogglePause(true); //open the pause menu
                 drone.GetComponent<DroneController>().CanMove(false); //the drone cannot move
                 player.GetComponent<RopeController>().CanUseRope(false); //the player can't use the rope or move
             }
@@ -120,7 +98,7 @@ public class LevelController : MonoBehaviour
 
     void LateUpdate()
     {
-        if(levelActive && !paused)
+        if(levelActive && !pauseMenu.IsPaused())
         {
             UpdateTimeInLevel();
             CheckLevelEnd();
@@ -131,7 +109,7 @@ public class LevelController : MonoBehaviour
     public void InitNewLevel(GameObject room)
     {
         levelActive = true; //you are now currently playing a level
-        paused = false;
+        pauseMenu.TogglePause(false);
         timeInLevel = 0.0f; //reset the time(just in case we're restarting)
 
         //Gets the appropriate level that we are initializing
@@ -219,7 +197,7 @@ public class LevelController : MonoBehaviour
     private void EndLevel()
     {
         levelActive = false; //no longer in the level
-        paused = true; //the game is paused
+        pauseMenu.TogglePause(true); //the game is pauseMenu.IsPaused()
 
         drone.GetComponent<DroneController>().CanMove(false); //the drone can't move
         player.GetComponent<RopeController>().CanUseRope(false); //the player can't use the rope and stops moving
@@ -254,13 +232,11 @@ public class LevelController : MonoBehaviour
     //Shows the final time and stars earned for the level
     private void ShowScore()
     {
-        int starsEarned = CalculateStars();
-        
-        endStarsText.SetText(starsEarned.ToString());
-        endTimeText.SetText(timeInLevel.ToString("F2"));
-        endScoreUI.SetActive(true);
+        int starsEarned = CalculateStars(); //Get the number of stars earned
 
-        UpdateLevelScore(starsEarned);
+        endMenu.UpdateScore(starsEarned, timeInLevel); //updates the score in the end-level menu
+
+        UpdateLevelScore(starsEarned); //Updates the scores in the levels db
     }
 
     //Updates the score in the leveldb so it will properly show later in the level select menu
@@ -280,25 +256,27 @@ public class LevelController : MonoBehaviour
 
         int levelIndex = levelDB.levels.IndexOf(currentLevel);
 
+        //If you're not on the last level
         if (levelIndex < levelDB.levels.Count - 1)
         {
-            if (currentLevel.starsEarned == 3)
+            if (currentLevel.starsEarned == 3) //If you earned 3 stars
             {
-                levelDB.levels[levelIndex + 1].unlocked = true;
-                nextLevelButton.gameObject.SetActive(true);
+                levelDB.levels[levelIndex + 1].unlocked = true; //Unlock the next level
+                endMenu.ToggleNextLevelButton(true); //Show the "Next Level" button
             }
             else
             {
-                nextLevelButton.gameObject.SetActive(false);
+                endMenu.ToggleNextLevelButton(false); //don't show the next level button
             }
         }
-        else
+        else //There are no more levels after this one
         {
-            nextLevelButton.gameObject.SetActive(false);
+            endMenu.ToggleNextLevelButton(false); //So don't show the next level button
         }
 
     }
 
+    //Updates the HUD timer with how long you've been in the current level
     private void UpdateTimeInLevel()
     {
         timeInLevel += Time.deltaTime;
@@ -306,38 +284,40 @@ public class LevelController : MonoBehaviour
         hudTimeText.text = timeInLevel.ToString("F2");
     }
 
-    private void LoadNextLevel()
+    //Loads the next level
+    public void LoadNextLevel()
     {
-        int levelIndex = levelDB.levels.IndexOf(currentLevel);
+        int levelIndex = levelDB.levels.IndexOf(currentLevel); //Get the index of your current level in the db
 
-        if (levelIndex < levelDB.levels.Count - 1)
+        if (levelIndex < levelDB.levels.Count - 1) //If it's not the last one
         {
-            if (levelDB.levels[levelIndex + 1].unlocked)
+            if (levelDB.levels[levelIndex + 1].unlocked) //If the next level is unlocked
             {
                 timeInLevel = 0.0f; //reset the time
 
-                endScoreUI.SetActive(false); //disables the end score screen
+                endMenu.SetActive(false); //disables the end score screen
                 currentLevel.level.SetActive(false); //disables the current level
 
-                paused = false; //you are no longer paused
+                pauseMenu.TogglePause(false); //you are no longer pauseMenu.IsPaused()
                 levelActive = true; //the level is reactivated
 
-                InitNewLevel(levelDB.levels[levelIndex + 1].level);
+                InitNewLevel(levelDB.levels[levelIndex + 1].level); //Start the next level
             }
         }
     }
 
-    private void RestartLevel()
+    //Restarts your current level
+    public void RestartLevel()
     {
         //Update the positions of the player and drone to the appropriate place in the new level        
         UpdateDronePosition();
         UpdatePlayerPosition();
         
-        endScoreUI.SetActive(false); //disables the end score screen
-        pauseMenu.SetActive(false); //disables the pause menu
+        endMenu.SetActive(false); //disables the end score screen
+        pauseMenu.TogglePause(false); //disables the pause menu
 
         timeInLevel = 0.0f; //reset the time
-        paused = false; //you are no longer paused
+        pauseMenu.TogglePause(false); //you are no longer pauseMenu.IsPaused()
         levelActive = true; //the level is reactivated
 
         drone.GetComponent<DroneController>().CanMove(true); //the drone can move again
@@ -345,14 +325,15 @@ public class LevelController : MonoBehaviour
         player.GetComponent<RopeController>().ResetVelocity(); //makes it so they don't zoom away during a restart
     }
 
-    private void ReturnToLevelSelect()
+    //Closes the level and returns to the Level Selection Menu
+    public void ReturnToLevelSelect()
     {
         timeInLevel = 0.0f; //reset the time
 
-        endScoreUI.SetActive(false); //disables the end score screen
+        endMenu.SetActive(false); //disables the end score screen
         currentLevel.level.SetActive(false); //disables the current level
-        pauseMenu.SetActive(false); //disables the pause menu
+        pauseMenu.TogglePause(false); //disables the pause menu
 
-        mainMenu.ActivateLevelSelectMenu(true); //opens the level select menu with updated scores and unlocked levels
+        levelMenu.ActivateLevelSelectMenu(true); //opens the level select menu with updated scores and unlocked levels
     }
 }

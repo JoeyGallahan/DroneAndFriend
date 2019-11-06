@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 [System.Serializable]
 public class Level
 {
     [SerializeField] public GameObject level;
     [SerializeField] public GameObject button;
-    [SerializeField] public TextMeshProUGUI starsEarnedText;
+    [SerializeField] public List<Image> starsEarnedImages;
     [SerializeField] public TextMeshProUGUI fastestTimeText;
     [SerializeField] public int id;
     [SerializeField] public bool unlocked = false;
