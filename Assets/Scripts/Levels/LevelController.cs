@@ -40,6 +40,11 @@ public class LevelController : MonoBehaviour
     Vector3 playerStartingOffset = new Vector3(0.5f, 0.5f);
     Vector3 droneStartingOffset = new Vector3(0.5f, 2.0f);
 
+    //Audio
+    AudioSource audioSource;
+    [SerializeField] AudioClip startLevelSound;
+    [SerializeField] AudioClip endLevelSound;
+
     float timeInLevel = 0.0f;
 
     private void Awake()
@@ -62,6 +67,8 @@ public class LevelController : MonoBehaviour
         endMenu = gameController.GetComponent<EndMenu>();
 
         cam = Camera.main;
+        
+        audioSource = player.GetComponent<AudioSource>();
     }
 
     // Start is called before the first frame update
@@ -93,6 +100,10 @@ public class LevelController : MonoBehaviour
                 drone.GetComponent<DroneController>().CanMove(false); //the drone cannot move
                 player.GetComponent<RopeController>().CanUseRope(false); //the player can't use the rope or move
             }
+        }
+        if(Input.GetKeyDown(KeyCode.R))
+        {
+            RestartLevel();
         }
     }
 
@@ -142,6 +153,7 @@ public class LevelController : MonoBehaviour
         {
             drone.GetComponent<DroneController>().CanMove(true);
         }
+        drone.GetComponent<DroneController>().ResetVelocity(); //the drone can move again
 
         //If the player is unable to use the rope, let it use the rope. Prevents issues with the rb velocity when we use the if statement
         if (!player.GetComponent<RopeController>().CanUseRope())
@@ -155,6 +167,7 @@ public class LevelController : MonoBehaviour
         drone.SetActive(true);
 
         HUD.SetActive(true); //activate the HUD
+        //PlaySound(startLevelSound);
     }
 
     //Moves the camera so that it focuses on the current level
@@ -204,6 +217,7 @@ public class LevelController : MonoBehaviour
 
         PlayParticles(); //Play the success particles
         ShowScore(); //updates and shows the score
+        //PlaySound(endLevelSound);
     }
 
     //Plays the particle effects at the end of a level
@@ -323,6 +337,7 @@ public class LevelController : MonoBehaviour
         drone.GetComponent<DroneController>().CanMove(true); //the drone can move again
         player.GetComponent<RopeController>().CanUseRope(true); //the player can use the rope again
         player.GetComponent<RopeController>().ResetVelocity(); //makes it so they don't zoom away during a restart
+        drone.GetComponent<DroneController>().ResetVelocity(); //the drone can move again
     }
 
     //Closes the level and returns to the Level Selection Menu
@@ -335,5 +350,19 @@ public class LevelController : MonoBehaviour
         pauseMenu.TogglePause(false); //disables the pause menu
 
         levelMenu.ActivateLevelSelectMenu(true); //opens the level select menu with updated scores and unlocked levels
+    }
+
+    private void PlaySound(AudioClip sound)
+    {
+        StopSound();
+        audioSource.PlayOneShot(sound);
+    }
+
+    private void StopSound()
+    {
+        if (audioSource.isPlaying)
+        {
+            audioSource.Stop();
+        }
     }
 }

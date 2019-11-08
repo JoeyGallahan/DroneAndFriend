@@ -4,16 +4,11 @@ using UnityEngine;
 
 public class DroneController : MonoBehaviour
 {
-    //Input Keys
-    KeyCode keyCodeUp = KeyCode.W;
-    KeyCode keyCodeDown = KeyCode.S;
-    KeyCode keyCodeRight = KeyCode.D;
-    KeyCode keyCodeLeft = KeyCode.A;
-
     //Movement
-    [SerializeField] float maxMovementSpeed = 5.0f;
-    bool[] movementDirections = { false, false, false, false }; //up, down, right, left
-    bool canMove = false;
+    [SerializeField] float maxMovementSpeed = 55.0f;
+    [SerializeField] bool canMove = false;
+    float moveHor = 0.0f;
+    float moveVer = 0.0f;
 
     //Idling
     [SerializeField] float idleMoveDistance;
@@ -36,12 +31,15 @@ public class DroneController : MonoBehaviour
     [SerializeField] Gradient closeColorGradient;
     [SerializeField] Color farColor;
     [SerializeField] Gradient farColorGradient;
+
+    Rigidbody2D rb;
     
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player");
         droneColor = this.gameObject.GetComponent<SpriteRenderer>();
         trailColor = gameObject.GetComponentInChildren<TrailRenderer>();
+        rb = GetComponent<Rigidbody2D>();
     }
 
     // Update is called once per frame
@@ -49,92 +47,21 @@ public class DroneController : MonoBehaviour
     {
         if(canMove)
         {
-            GetInput();
-            IdleAnimations();
-
             UpdateDronePosition();
+            IdleAnimations();
+            UpdateDistanceToPlayer();
             UpdateDroneColor();
         }
     }
 
-    //Gets the vertical and horizontal inputs that the drone should react to
-    void GetInput()
-    {
-        if (Input.GetKey(keyCodeUp))
-        {
-            //Can't move both up and down
-            movementDirections[0] = true;
-            movementDirections[1] = false;
-        }
-        else if (Input.GetKey(keyCodeDown))
-        {
-            //Can't move both up and down
-            movementDirections[1] = true;
-            movementDirections[0] = false;
-        }
-        else
-        {
-            //If you don't press up or down then you don't move vertically at all
-            movementDirections[0] = false;
-            movementDirections[1] = false;
-        }
-
-        if (Input.GetKey(keyCodeRight))
-        {
-            //Can't move both right and left
-            movementDirections[2] = true;
-            movementDirections[3] = false;
-        }
-        else if (Input.GetKey(keyCodeLeft))
-        {
-            //Can't move both right and left
-            movementDirections[3] = true;
-            movementDirections[2] = false;
-        }
-        else
-        {
-            //If you don't press left or right then you don't move horizontally at all
-            movementDirections[2] = false;
-            movementDirections[3] = false;
-        }
-    }
-
-    //Updates the drone position based on the direction the drone is moving
     public void UpdateDronePosition()
     {
-        Vector3 newPosition = transform.position;
+        moveHor = Input.GetAxis("Horizontal") * maxMovementSpeed;
+        moveVer = Input.GetAxis("Vertical") * maxMovementSpeed;
 
-        //Vertical movement
-        if (movementDirections[0]) //if moving up
-        {
-            newPosition.y += (maxMovementSpeed * Time.deltaTime);
-        }
-        else if (movementDirections[1]) //if moving down
-        {
-            newPosition.y -= (maxMovementSpeed * Time.deltaTime);
-        }
+        Vector2 movement = new Vector2(moveHor, moveVer);
 
-        //Horizontal movement
-        if (movementDirections[2]) //if moving right
-        {
-            newPosition.x += (maxMovementSpeed * Time.deltaTime);
-        }
-        else if (movementDirections[3]) //if moving left
-        {
-            newPosition.x -= (maxMovementSpeed * Time.deltaTime);
-        }
-
-        transform.position = newPosition; //update the position
-
-        //Check to see if the drone is out of player range
-        if (Vector3.Distance(transform.position, player.transform.position) > maxDistance)
-        {
-            withinDistance = false;
-        }
-        else
-        {
-            withinDistance = true;
-        }
+        rb.velocity = movement * maxMovementSpeed * Time.deltaTime;
     }
 
     //Updates the color of the drone based on the distance to the player
@@ -151,6 +78,16 @@ public class DroneController : MonoBehaviour
             trailColor.colorGradient = closeColorGradient; //Change the color of the drone's trail to the preset
         }
     }
+
+    void UpdateDistanceToPlayer()
+    {
+        withinDistance = true;
+
+        if (Vector2.Distance(transform.position,player.transform.position) > maxDistance)
+        {
+            withinDistance = false;
+        }
+    }
     
     public bool WithinRopeDistance() { return withinDistance; }
 
@@ -163,7 +100,7 @@ public class DroneController : MonoBehaviour
 
         for(int i = 0; i < 4; i++)
         {
-            if(movementDirections[i]) //If you made any movements at all, you're not idle
+            if(moveVer != 0.0f || moveHor != 0.0f) //If you made any movements at all, you're not idle
             {
                 isIdle = false; //switch it back
                 break; //don't need to go any further. we found what we're looking for.
@@ -223,6 +160,11 @@ public class DroneController : MonoBehaviour
     public bool CanMove()
     {
         return canMove;
+    }
+
+    public void ResetVelocity()
+    {
+        rb.velocity = Vector2.zero;
     }
 
 }

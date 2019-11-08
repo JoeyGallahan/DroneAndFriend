@@ -93,14 +93,14 @@ public class RopeController : MonoBehaviour
         {
             savedVelocity = rb.velocity;
             rb.isKinematic = true;
-            rb.velocity = new Vector2(0.0f,0.0f);
+            rb.velocity = Vector2.zero;
         }
         else if (maybe)
         {
             rb.isKinematic = false;
             rb.AddForce(savedVelocity, ForceMode2D.Impulse);
 
-            savedVelocity = new Vector2(0.0f, 0.0f);
+            savedVelocity = Vector2.zero;
         }
     }
 
@@ -111,7 +111,7 @@ public class RopeController : MonoBehaviour
 
     public void ResetVelocity()
     {
-        savedVelocity = new Vector2(0.0f, 0.0f);
-        rb.velocity = new Vector2(0.0f, 0.0f);
+        savedVelocity = Vector2.zero;
+        rb.velocity = Vector2.zero;
     }
 }

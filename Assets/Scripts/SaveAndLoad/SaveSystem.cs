@@ -4,7 +4,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 public static class SaveSystem
 {
-    static string savePath = Path.Combine(Application.persistentDataPath, "levels.bin"); //What our save file will be called
+    static string savePath = Path.Combine(Application.persistentDataPath, "ihate.paul"); //What our save file will be called
     static BinaryFormatter binFormatter = new BinaryFormatter(); //Serializes and deserializes the data for us <3 
 
     //Saves the necessary data for all of the levels
